@@ -22,3 +22,7 @@ if getattr(settings, "VERCEL_EPHEMERAL_SQLITE", False):
     from django.core.management import call_command  # noqa: E402
 
     call_command("migrate", "--noinput", verbosity=0)
+
+from library.catalog_seed import ensure_sample_books  # noqa: E402
+
+ensure_sample_books()
