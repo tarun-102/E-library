@@ -4,12 +4,19 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-kv6ok0txp86i3avrbq1as-m9)ya#*-=e2x72!wcu9tv#=&dhkd'
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    "django-insecure-kv6ok0txp86i3avrbq1as-m9)ya#*-=e2x72!wcu9tv#=&dhkd",
+)
 
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "True").lower() in ("1", "true", "yes")
 
-# Vercel deployment ke liye sahi hosts
-ALLOWED_HOSTS = ['.vercel.app', '127.0.0.1', 'localhost']
+# Comma-separated override, e.g. "localhost,127.0.0.1,.vercel.app"
+_allowed = os.environ.get("ALLOWED_HOSTS", "").strip()
+if _allowed:
+    ALLOWED_HOSTS = [h.strip() for h in _allowed.split(",") if h.strip()]
+else:
+    ALLOWED_HOSTS = [".vercel.app", "127.0.0.1", "localhost"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -51,12 +58,36 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'elibrary.wsgi.application'
 
-# Neon PostgreSQL Setup
-DATABASES = {
-    'default': dj_database_url.parse('postgresql://neondb_owner:npg_8qfl6OyzeZYn@ep-odd-smoke-a44ommof.us-east-1.aws.neon.tech/neondb?sslmode=require')
-}
+# Use DATABASE_URL (e.g. Neon on Vercel). Without it, local SQLite so migrate/createsuperuser match login.
+_database_url = os.environ.get("DATABASE_URL", "").strip()
+if _database_url:
+    DATABASES = {"default": dj_database_url.parse(_database_url)}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = []
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+
+_csrf_origins = os.environ.get("CSRF_TRUSTED_ORIGINS", "").strip()
+if _csrf_origins:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(",") if o.strip()]
+elif DEBUG:
+    CSRF_TRUSTED_ORIGINS = [
+        "http://127.0.0.1:8000",
+        "http://localhost:8000",
+    ]
+else:
+    _vercel_url = os.environ.get("VERCEL_URL", "").strip()
+    CSRF_TRUSTED_ORIGINS = (
+        [f"https://{_vercel_url}"] if _vercel_url else []
+    )
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
