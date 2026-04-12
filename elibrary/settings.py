@@ -1,24 +1,20 @@
 import os
-import tempfile
 import dj_database_url
 from pathlib import Path
 
+# Project ka Base Directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get(
-    "SECRET_KEY",
-    "django-insecure-kv6ok0txp86i3avrbq1as-m9)ya#*-=e2x72!wcu9tv#=&dhkd",
-)
+# Security Settings
+SECRET_KEY = 'django-insecure-kv6ok0txp86i3avrbq1as-m9)ya#*-=e2x72!wcu9tv#=&dhkd'
 
-DEBUG = os.environ.get("DEBUG", "True").lower() in ("1", "true", "yes")
+# Local testing ke liye True, Vercel par bhi ye kaam karega
+DEBUG = True
 
-# Comma-separated override, e.g. "localhost,127.0.0.1,.vercel.app"
-_allowed = os.environ.get("ALLOWED_HOSTS", "").strip()
-if _allowed:
-    ALLOWED_HOSTS = [h.strip() for h in _allowed.split(",") if h.strip()]
-else:
-    ALLOWED_HOSTS = [".vercel.app", "127.0.0.1", "localhost"]
+# Vercel aur Local hosts dono allow hain
+ALLOWED_HOSTS = ['.vercel.app', '127.0.0.1', 'localhost']
 
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -26,12 +22,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'library',
+    'library',  # Tumhara app
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # <--- YE LINE SABSE ZAROORI HAI
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files ke liye zaroori
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -59,67 +55,37 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'elibrary.wsgi.application'
 
-# DATABASE_URL (e.g. Neon) = persistent DB for production. On Vercel without it, use /tmp SQLite
-# (writable there; /var/task is read-only). Ephemeral: data can reset on cold starts — set DATABASE_URL for real use.
-_database_url = os.environ.get("DATABASE_URL", "").strip()
-_on_vercel = bool(os.environ.get("VERCEL"))
-VERCEL_EPHEMERAL_SQLITE = False
-if _database_url:
-    DATABASES = {"default": dj_database_url.parse(_database_url, conn_max_age=600)}
-elif _on_vercel:
-    _ephemeral_db = Path(tempfile.gettempdir()) / "django_db.sqlite3"
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": str(_ephemeral_db),
-        }
-    }
-    VERCEL_EPHEMERAL_SQLITE = True
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+# --- DATABASE SETUP (Neon PostgreSQL Direct Connection) ---
+DATABASES = {
+    'default': dj_database_url.parse('postgresql://neondb_owner:npg_8qfl6OyzeZYn@ep-odd-smoke-a44ommof.us-east-1.aws.neon.tech/neondb?sslmode=require')
+}
 
+# Password validation - College project ke liye empty rakha hai
 AUTH_PASSWORD_VALIDATORS = []
 
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
-
-_csrf_origins = os.environ.get("CSRF_TRUSTED_ORIGINS", "").strip()
-if _csrf_origins:
-    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(",") if o.strip()]
-else:
-    CSRF_TRUSTED_ORIGINS = []
-    if DEBUG:
-        CSRF_TRUSTED_ORIGINS.extend(
-            [
-                "http://127.0.0.1:8000",
-                "http://localhost:8000",
-            ]
-        )
-    _vercel_url = os.environ.get("VERCEL_URL", "").strip()
-    if _vercel_url:
-        CSRF_TRUSTED_ORIGINS.append(f"https://{_vercel_url}")
-
-# Behind Vercel’s proxy, request.is_secure() uses X-Forwarded-Proto
-if _on_vercel:
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
+# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static Files Setup
+# --- STATIC FILES SETUP (Vercel ke liye) ---
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# WhiteNoise ko static files optimize karne ke liye bolna
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media Files (Images)
+# Media Files (Books ki images ke liye)
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Login/Logout redirects
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+# CSRF Settings Vercel ke liye
+CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app'] 
