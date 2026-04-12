@@ -8,10 +8,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security Settings
 SECRET_KEY = 'django-insecure-kv6ok0txp86i3avrbq1as-m9)ya#*-=e2x72!wcu9tv#=&dhkd'
 
-# Local testing ke liye True, Vercel par bhi ye kaam karega
+# Production mein ise False kar sakte hain, par presentation ke liye True sahi hai
 DEBUG = True
 
-# Vercel aur Local hosts dono allow hain
+# Vercel aur Local hosts
 ALLOWED_HOSTS = ['.vercel.app', '127.0.0.1', 'localhost']
 
 # Application definition
@@ -22,12 +22,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'library',  # Tumhara app
+    'library',  # Tumhara app name
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files ke liye zaroori
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files serve karne ke liye
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -69,15 +69,22 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# --- STATIC FILES SETUP (Vercel ke liye) ---
-STATIC_URL = 'static/'
+# --- STATIC FILES SETUP (Vercel ke liye Optimized) ---
+STATIC_URL = '/static/' 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# WhiteNoise ko static files optimize karne ke liye bolna
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# WhiteNoise Storage (Django 4.2+ compatible)
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Media Files (Books ki images ke liye)
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
@@ -87,5 +94,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# CSRF Settings Vercel ke liye
-CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app'] 
+# CSRF Settings Vercel ke liye (Login errors fix karega)
+CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app']
