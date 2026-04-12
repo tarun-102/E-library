@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}E-Library{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        glass: '0 8px 32px 0 rgba(15, 23, 42, 0.35)',
+                        card: '0 4px 24px -4px rgba(15, 23, 42, 0.2), 0 12px 48px -8px rgba(15, 23, 42, 0.12)',
+                    },
+                },
+            },
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-gradient-to-b from-slate-900 via-blue-950 to-slate-950 text-slate-100 font-sans antialiased">
+    <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(59,130,246,0.22),transparent)]"></div>
+    <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_60%_40%_at_100%_0%,rgba(99,102,241,0.12),transparent)]"></div>
+    <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_50%_30%_at_0%_100%,rgba(14,165,233,0.1),transparent)]"></div>
+    <div class="pointer-events-none fixed inset-0 opacity-[0.035] [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:48px_48px]"></div>
+
+    <div class="relative z-10">
+        <nav class="border-b border-white/10 bg-slate-950/40 backdrop-blur-xl">
+            <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+                <a href="{% url 'home' %}" class="text-sm font-semibold tracking-tight text-white hover:text-blue-200">E-Library</a>
+                <div class="flex flex-wrap items-center gap-3 text-sm">
+                    <a href="{% url 'home' %}" class="rounded-lg px-3 py-1.5 text-slate-300 hover:bg-white/5 hover:text-white">Catalog</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'student_dashboard' %}" class="rounded-lg px-3 py-1.5 text-slate-300 hover:bg-white/5 hover:text-white">My books</a>
+                        {% if user.is_staff %}
+                            <a href="{% url 'librarian_dashboard' %}" class="rounded-lg px-3 py-1.5 text-amber-200/90 hover:bg-white/5 hover:text-amber-100">Librarian</a>
+                        {% endif %}
+                        {% if user.is_staff or user.is_superuser %}
+                            <a href="/admin/" class="rounded-lg border border-violet-400/30 bg-violet-500/15 px-3 py-1.5 font-medium text-violet-100 hover:bg-violet-500/25">Admin panel</a>
+                        {% endif %}
+                        <form method="post" action="{% url 'logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-slate-200 hover:bg-white/10">Logout</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'register' %}" class="rounded-lg px-3 py-1.5 text-slate-300 hover:bg-white/5 hover:text-white">Register</a>
+                        <a href="{% url 'login' %}" class="rounded-lg bg-blue-600 px-3 py-1.5 font-medium text-white shadow-lg shadow-blue-900/30 hover:bg-blue-500">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

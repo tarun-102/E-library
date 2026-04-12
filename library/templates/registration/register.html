@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Create account — E-Library{% endblock %}
+{% block content %}
+<main class="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-4 py-16 sm:px-6">
+    <div class="rounded-3xl border border-white/10 bg-white/[0.07] p-8 shadow-glass backdrop-blur-2xl">
+        <h1 class="text-center text-2xl font-bold text-white">Create account</h1>
+        <p class="mt-2 text-center text-sm text-slate-400">Choose a username and password to borrow books.</p>
+
+        {% if form.non_field_errors %}
+        <div class="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
+            {% for err in form.non_field_errors %}<p>{{ err }}</p>{% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'register' %}" class="mt-8 space-y-4">
+            {% csrf_token %}
+            <div>
+                <label for="{{ form.username.id_for_label }}" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                <p class="mt-1 text-xs text-rose-300">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+            <div>
+                <label for="{{ form.password1.id_for_label }}" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Password</label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                <p class="mt-1 text-xs text-rose-300">{{ form.password1.errors.0 }}</p>
+                {% endif %}
+            </div>
+            <div>
+                <label for="{{ form.password2.id_for_label }}" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Confirm password</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                <p class="mt-1 text-xs text-rose-300">{{ form.password2.errors.0 }}</p>
+                {% endif %}
+            </div>
+            <button type="submit"
+                class="mt-2 w-full rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-950/40 hover:from-sky-400 hover:to-blue-500">
+                Create account
+            </button>
+        </form>
+        <p class="mt-6 text-center text-sm text-slate-400">
+            Already have an account?
+            <a href="{% url 'login' %}" class="font-semibold text-sky-400 hover:text-sky-300">Sign in</a>
+        </p>
+        <p class="mt-3 text-center text-xs text-slate-500">
+            <a href="{% url 'home' %}" class="text-sky-400/90 hover:text-sky-300">← Back to catalog</a>
+        </p>
+    </div>
+</main>
+{% endblock %}
