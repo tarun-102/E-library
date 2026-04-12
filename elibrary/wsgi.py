@@ -11,6 +11,14 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'elibrary.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "elibrary.settings")
 
 application = get_wsgi_application()
+
+# Vercel fallback SQLite lives in /tmp; apply migrations once per process (no separate deploy step).
+from django.conf import settings  # noqa: E402
+
+if getattr(settings, "VERCEL_EPHEMERAL_SQLITE", False):
+    from django.core.management import call_command  # noqa: E402
+
+    call_command("migrate", "--noinput", verbosity=0)

@@ -1,8 +1,7 @@
 import os
+import tempfile
 import dj_database_url
 from pathlib import Path
-
-from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -60,18 +59,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'elibrary.wsgi.application'
 
-# Use DATABASE_URL (e.g. Neon) on serverless hosts — their filesystem is read-only, so SQLite cannot work.
+# DATABASE_URL (e.g. Neon) = persistent DB for production. On Vercel without it, use /tmp SQLite
+# (writable there; /var/task is read-only). Ephemeral: data can reset on cold starts — set DATABASE_URL for real use.
 _database_url = os.environ.get("DATABASE_URL", "").strip()
 _on_vercel = bool(os.environ.get("VERCEL"))
+VERCEL_EPHEMERAL_SQLITE = False
 if _database_url:
     DATABASES = {"default": dj_database_url.parse(_database_url, conn_max_age=600)}
 elif _on_vercel:
-    raise ImproperlyConfigured(
-        "On Vercel the filesystem is read-only, so SQLite cannot be used for writes. "
-        "Add DATABASE_URL (PostgreSQL, e.g. Neon) under Project Settings - Environment Variables, "
-        "redeploy, then run migrations against that database "
-        "(for example: vercel env pull, then python manage.py migrate with DATABASE_URL set)."
-    )
+    _ephemeral_db = Path(tempfile.gettempdir()) / "django_db.sqlite3"
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": str(_ephemeral_db),
+        }
+    }
+    VERCEL_EPHEMERAL_SQLITE = True
 else:
     DATABASES = {
         "default": {
