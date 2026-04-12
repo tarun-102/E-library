@@ -23,6 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-kv6ok0txp86i3avrbq1as-m9)ya#*-=e2x72!wcu9tv#=&dhkd'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -72,14 +73,13 @@ WSGI_APPLICATION = 'elibrary.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+import dj_database_url
+import os
 
+# Neon PostgreSQL Setup (Keep this only)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.parse('postgresql://neondb_owner:npg_8qfl6OyzeZYn@ep-odd-smoke-a44ommof.us-east-1.aws.neon.tech/neondb?sslmode=require')
 }
-
 
 # Password validation — disabled for local/college demo so simple passwords
 # (e.g. 4 digits) work. For production, re-enable validators from Django docs.

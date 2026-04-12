@@ -1,0 +1,132 @@
+[
+{
+  "model": "library.book",
+  "pk": 1,
+  "fields": {
+    "title": "Django for Beginners",
+    "author": "William S. Vincent",
+    "isbn": "9781735467726",
+    "category": "tech",
+    "image": "",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnoonA8hCS0posQ8hhakWPq-UDrwGwnmOa0Q&s",
+    "is_available": true
+  }
+},
+{
+  "model": "library.book",
+  "pk": 2,
+  "fields": {
+    "title": "Atomic Habits",
+    "author": "James Clear",
+    "isbn": "9781847941831",
+    "category": "other",
+    "image": "",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT87vEDu9jZlUTtiiY6P1mKGWukkU6xAdCwiw&s",
+    "is_available": true
+  }
+},
+{
+  "model": "library.book",
+  "pk": 3,
+  "fields": {
+    "title": "The Alchemist",
+    "author": "Paulo Coelho",
+    "isbn": "9780062315007",
+    "category": "fiction",
+    "image": "",
+    "image_url": "https://mir-s3-cdn-cf.behance.net/project_modules/hd_webp/64d0d926231819.563534b740ae2.jpg",
+    "is_available": true
+  }
+},
+{
+  "model": "library.book",
+  "pk": 4,
+  "fields": {
+    "title": "Clean Code",
+    "author": "Robert C. Martin",
+    "isbn": "9780132350884",
+    "category": "tech",
+    "image": "",
+    "image_url": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSl12LPWV0YI_2VU2YdldBi4Bmp_JpyTLre2Y_GwGIKyoHfU3GJvCDj74j8hzTPJ0JWN2CQ_iBzAkq-0PbsED5ErbS-ZtFtynw4sz7eHGQ&usqp=CAc",
+    "is_available": true
+  }
+},
+{
+  "model": "library.book",
+  "pk": 5,
+  "fields": {
+    "title": "Rich Dad Poor Dad",
+    "author": "Robert Kiyosaki",
+    "isbn": "9781612680194",
+    "category": "other",
+    "image": "",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4sxDB3OOu8n_0le-rJc0k4l92f-9iMzUOoA&s",
+    "is_available": true
+  }
+},
+{
+  "model": "library.book",
+  "pk": 6,
+  "fields": {
+    "title": "Bhagavad Gita (As It Is)",
+    "author": "A.C. Bhaktivedanta Swami",
+    "isbn": "9780892132546",
+    "category": "other",
+    "image": "",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSxTGLs25ToEfilEQ5DQqtYZaWYoiqdfRSrg&s",
+    "is_available": false
+  }
+},
+{
+  "model": "library.book",
+  "pk": 7,
+  "fields": {
+    "title": "The Guide",
+    "author": "R.K. Narayan",
+    "isbn": "9780143039648",
+    "category": "fiction",
+    "image": "",
+    "image_url": "https://i.pinimg.com/736x/e1/9b/86/e19b86eb992f174954f54b470a9218c9.jpg",
+    "is_available": true
+  }
+},
+{
+  "model": "library.book",
+  "pk": 8,
+  "fields": {
+    "title": "The God of Small Things",
+    "author": "Arundhati Roy",
+    "isbn": "9780679457312",
+    "category": "fiction",
+    "image": "",
+    "image_url": "https://img.bookchor.com/images/cover/189/9780006550686.jpg",
+    "is_available": true
+  }
+},
+{
+  "model": "library.book",
+  "pk": 9,
+  "fields": {
+    "title": "I Am Malala",
+    "author": "Malala Yousafzai",
+    "isbn": "9780316322409",
+    "category": "biography",
+    "image": "",
+    "image_url": "https://cms.buybooksindia.com/uploads/books/9781780226583_0_1606892144.jpeg",
+    "is_available": true
+  }
+},
+{
+  "model": "library.book",
+  "pk": 10,
+  "fields": {
+    "title": "The Palace of Illusions",
+    "author": "Chitra Banerjee",
+    "isbn": "9781400077151",
+    "category": "history",
+    "image": "",
+    "image_url": "https://m.media-amazon.com/images/I/A1dtQ-soQEL._AC_UF1000,1000_QL80_.jpg",
+    "is_available": true
+  }
+}
+]

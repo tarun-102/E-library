@@ -1,52 +1,127 @@
 {% extends "base.html" %}
-{% block title %}Create account — E-Library{% endblock %}
+
+{% block title %}Catalog — E-Library{% endblock %}
+
+{% block extra_head %}
+<style>
+    @keyframes floaty {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .animate-floaty {
+        animation: floaty 5s ease-in-out infinite;
+    }
+    .animate-floaty-delay {
+        animation: floaty 5.8s ease-in-out infinite;
+        animation-delay: 0.4s;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<main class="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-4 py-16 sm:px-6">
-    <div class="rounded-3xl border border-white/10 bg-white/[0.07] p-8 shadow-glass backdrop-blur-2xl">
-        <h1 class="text-center text-2xl font-bold text-white">Create account</h1>
-        <p class="mt-2 text-center text-sm text-slate-400">Choose a username and password to borrow books.</p>
+<section class="relative overflow-hidden border-b border-white/10">
+    <div class="mx-auto max-w-4xl px-4 pb-16 pt-14 text-center sm:px-6 sm:pb-20 sm:pt-20 lg:px-8">
+        <p class="text-[11px] font-bold uppercase tracking-[0.35em] text-blue-200/80">Library catalog</p>
+        <h1 class="animate-floaty mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+            <span class="bg-gradient-to-r from-white via-sky-100 to-cyan-200 bg-clip-text text-transparent">E-Library</span>
+        </h1>
+        <p class="mx-auto mt-6 max-w-xl text-sm font-medium leading-relaxed tracking-wide text-slate-300/95 sm:text-base">
+            Check titles, authors, and live availability at a glance
+        </p>
 
-        {% if form.non_field_errors %}
-        <div class="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">
-            {% for err in form.non_field_errors %}<p>{{ err }}</p>{% endfor %}
-        </div>
-        {% endif %}
-
-        <form method="post" action="{% url 'register' %}" class="mt-8 space-y-4">
-            {% csrf_token %}
-            <div>
-                <label for="{{ form.username.id_for_label }}" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Username</label>
-                {{ form.username }}
-                {% if form.username.errors %}
-                <p class="mt-1 text-xs text-rose-300">{{ form.username.errors.0 }}</p>
-                {% endif %}
+        <form method="get" action="{% url 'home' %}" class="mx-auto mt-10 max-w-2xl">
+            <div class="rounded-2xl border border-white/15 bg-white/[0.08] p-2 shadow-glass backdrop-blur-2xl sm:p-3">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <div class="relative flex-1">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </span>
+                        <input type="search" name="q" id="q" value="{{ q }}"
+                            placeholder="Search by title or category…"
+                            class="w-full rounded-xl border border-white/10 bg-slate-950/40 py-3.5 pl-12 pr-4 text-sm text-white placeholder:text-slate-500 outline-none ring-2 ring-transparent transition focus:border-sky-400/40 focus:ring-sky-500/30">
+                    </div>
+                    <label class="flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-white/10 bg-slate-950/30 px-4 py-3 text-sm text-slate-200">
+                        <input type="checkbox" name="available" value="1" {% if available_only %}checked{% endif %}
+                            class="h-4 w-4 rounded border-white/30 bg-white/10 text-sky-500 focus:ring-sky-400">
+                        <span class="font-medium">Available only</span>
+                    </label>
+                    <button type="submit"
+                        class="shrink-0 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-950/40 transition hover:from-sky-400 hover:to-blue-500">
+                        Search
+                    </button>
+                </div>
             </div>
-            <div>
-                <label for="{{ form.password1.id_for_label }}" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Password</label>
-                {{ form.password1 }}
-                {% if form.password1.errors %}
-                <p class="mt-1 text-xs text-rose-300">{{ form.password1.errors.0 }}</p>
-                {% endif %}
-            </div>
-            <div>
-                <label for="{{ form.password2.id_for_label }}" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">Confirm password</label>
-                {{ form.password2 }}
-                {% if form.password2.errors %}
-                <p class="mt-1 text-xs text-rose-300">{{ form.password2.errors.0 }}</p>
-                {% endif %}
-            </div>
-            <button type="submit"
-                class="mt-2 w-full rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-950/40 hover:from-sky-400 hover:to-blue-500">
-                Create account
-            </button>
         </form>
-        <p class="mt-6 text-center text-sm text-slate-400">
-            Already have an account?
-            <a href="{% url 'login' %}" class="font-semibold text-sky-400 hover:text-sky-300">Sign in</a>
-        </p>
-        <p class="mt-3 text-center text-xs text-slate-500">
-            <a href="{% url 'home' %}" class="text-sky-400/90 hover:text-sky-300">← Back to catalog</a>
-        </p>
     </div>
+</section>
+
+<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between gap-4">
+        <h2 class="text-base font-semibold text-white">Books</h2>
+        <p class="text-xs text-slate-400">{{ books|length }} result{% if books|length != 1 %}s{% endif %}</p>
+    </div>
+
+    {% if books %}
+    <div class="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        {% for book in books %}
+        <article class="group flex flex-col overflow-hidden rounded-xl border border-white/10 bg-white/[0.06] shadow-md backdrop-blur-xl transition hover:border-sky-400/25 hover:bg-white/[0.09]">
+            <div class="relative flex w-full justify-center bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 px-2 pt-3 pb-2.5">
+                <div class="relative aspect-[2/3] w-full max-w-[7.25rem] overflow-hidden rounded shadow-[0_8px_24px_-6px_rgba(0,0,0,0.55)] ring-1 ring-white/12 sm:max-w-[8.25rem]">
+                
+                {# Updated Image Logic #}
+                {% if book.image_url %}
+                    <img src="{{ book.image_url }}" alt="{{ book.title }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-110" loading="lazy">
+                {% elif book.image %}
+                    <img src="{{ book.image.url }}" alt="{{ book.title }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-110" loading="lazy">
+                {% else %}
+                <div class="flex h-full w-full flex-col items-center justify-center gap-1 bg-slate-900/90 text-slate-500">
+                    <svg class="h-8 w-8 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    <span class="text-[10px] font-medium uppercase">No cover</span>
+                </div>
+                {% endif %}
+                </div>
+            </div>
+            <div class="flex flex-1 flex-col p-3 sm:p-3.5">
+                <div class="flex items-start justify-between gap-1.5">
+                    <span class="inline-flex max-w-[58%] truncate rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-200/90">
+                        {{ book.get_category_display }}
+                    </span>
+                    {% if not book.is_available %}
+                    <span class="inline-flex shrink-0 items-center rounded-full bg-rose-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-rose-100 ring-1 ring-rose-400/35">Borrowed</span>
+                    {% else %}
+                    <span class="inline-flex shrink-0 items-center rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-100 ring-1 ring-emerald-400/35">Available</span>
+                    {% endif %}
+                </div>
+                <h3 class="mt-2 line-clamp-2 text-sm font-bold leading-snug text-white">{{ book.title }}</h3>
+                <p class="mt-0.5 line-clamp-1 text-xs text-slate-400">by <span class="text-slate-200">{{ book.author }}</span></p>
+                
+                {% if user.is_authenticated and book.is_available %}
+                <form method="post" action="{% url 'borrow_book' book.pk %}" class="mt-3">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="w-full rounded-lg bg-white/10 py-1.5 text-[11px] font-semibold text-white ring-1 ring-white/15 transition hover:bg-sky-600/80 hover:ring-sky-400/40">
+                        Borrow
+                    </button>
+                </form>
+                {% elif not user.is_authenticated and book.is_available %}
+                <p class="mt-2 text-center text-[10px] leading-tight text-slate-500">
+                    <a href="{% url 'register' %}" class="font-semibold text-sky-300 hover:text-sky-200">Register</a>
+                    or <a href="{% url 'login' %}" class="font-semibold text-sky-300 hover:text-sky-200">Login</a>
+                    to request
+                </p>
+                {% endif %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="mt-10 rounded-2xl border border-dashed border-white/15 bg-white/[0.04] p-14 text-center backdrop-blur-md">
+        <p class="text-slate-300">No books match your filters.</p>
+    </div>
+    {% endif %}
 </main>
 {% endblock %}
