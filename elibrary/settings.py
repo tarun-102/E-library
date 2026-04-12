@@ -2,6 +2,8 @@ import os
 import dj_database_url
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get(
@@ -58,10 +60,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'elibrary.wsgi.application'
 
-# Use DATABASE_URL (e.g. Neon on Vercel). Without it, local SQLite so migrate/createsuperuser match login.
+# Use DATABASE_URL (e.g. Neon) on serverless hosts — their filesystem is read-only, so SQLite cannot work.
 _database_url = os.environ.get("DATABASE_URL", "").strip()
+_on_vercel = bool(os.environ.get("VERCEL"))
 if _database_url:
-    DATABASES = {"default": dj_database_url.parse(_database_url)}
+    DATABASES = {"default": dj_database_url.parse(_database_url, conn_max_age=600)}
+elif _on_vercel:
+    raise ImproperlyConfigured(
+        "On Vercel the filesystem is read-only, so SQLite cannot be used for writes. "
+        "Add DATABASE_URL (PostgreSQL, e.g. Neon) under Project Settings - Environment Variables, "
+        "redeploy, then run migrations against that database "
+        "(for example: vercel env pull, then python manage.py migrate with DATABASE_URL set)."
+    )
 else:
     DATABASES = {
         "default": {
@@ -78,16 +88,22 @@ LOGOUT_REDIRECT_URL = "/"
 _csrf_origins = os.environ.get("CSRF_TRUSTED_ORIGINS", "").strip()
 if _csrf_origins:
     CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(",") if o.strip()]
-elif DEBUG:
-    CSRF_TRUSTED_ORIGINS = [
-        "http://127.0.0.1:8000",
-        "http://localhost:8000",
-    ]
 else:
+    CSRF_TRUSTED_ORIGINS = []
+    if DEBUG:
+        CSRF_TRUSTED_ORIGINS.extend(
+            [
+                "http://127.0.0.1:8000",
+                "http://localhost:8000",
+            ]
+        )
     _vercel_url = os.environ.get("VERCEL_URL", "").strip()
-    CSRF_TRUSTED_ORIGINS = (
-        [f"https://{_vercel_url}"] if _vercel_url else []
-    )
+    if _vercel_url:
+        CSRF_TRUSTED_ORIGINS.append(f"https://{_vercel_url}")
+
+# Behind Vercel’s proxy, request.is_secure() uses X-Forwarded-Proto
+if _on_vercel:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
