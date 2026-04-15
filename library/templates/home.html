@@ -85,7 +85,7 @@
             <div class="flex flex-1 flex-col p-3 sm:p-3.5">
                 <div class="flex items-start justify-between gap-1.5">
                     <span class="inline-flex max-w-[58%] truncate rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-200/90">
-                        {{ book.get_category_display }}
+                        {{ book.category|title }}
                     </span>
                     {% if book.id in blocked_book_ids or not book.is_available %}
                     <span class="inline-flex shrink-0 items-center rounded-full bg-rose-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-rose-100 ring-1 ring-rose-400/35">Borrowed</span>
@@ -93,8 +93,11 @@
                     <span class="inline-flex shrink-0 items-center rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-100 ring-1 ring-emerald-400/35">Available</span>
                     {% endif %}
                 </div>
-                <h3 class="mt-2 line-clamp-2 text-sm font-bold leading-snug text-white">{{ book.title }}</h3>
+                <h3 class="mt-2 line-clamp-2 text-sm font-bold leading-snug text-white">
+                    <a href="{% url 'book_detail' book.pk %}" class="hover:text-sky-200">{{ book.title }}</a>
+                </h3>
                 <p class="mt-0.5 line-clamp-1 text-xs text-slate-400">by <span class="text-slate-200">{{ book.author }}</span></p>
+                <a href="{% url 'book_detail' book.pk %}" class="mt-2 text-[11px] font-semibold text-sky-300 hover:text-sky-200">View details</a>
                 {% if user.is_authenticated and book.is_available and book.id not in blocked_book_ids %}
                 <form method="post" action="{% url 'borrow_book' book.pk %}" class="mt-3">
                     {% csrf_token %}

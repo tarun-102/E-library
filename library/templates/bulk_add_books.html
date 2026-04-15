@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Bulk add books — E-Library{% endblock %}
+{% block content %}
+<main class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-bold text-white">Bulk add books</h1>
+            <p class="mt-1 text-sm text-slate-400">Upload many books at once using JSON or CSV.</p>
+        </div>
+        <a href="{% url 'librarian_dashboard' %}" class="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-200 hover:bg-white/10">Back</a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="mt-8 space-y-6 rounded-2xl border border-white/10 bg-white/[0.05] p-6 backdrop-blur-xl">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="rounded-lg border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <div>
+            <label class="mb-2 block text-sm font-semibold text-white">JSON books array</label>
+            {{ form.json_payload }}
+            <p class="mt-2 text-xs text-slate-500">Fields: title, author, isbn, category, image_url, is_available</p>
+        </div>
+
+        <div>
+            <label class="mb-2 block text-sm font-semibold text-white">Or CSV file</label>
+            {{ form.csv_file }}
+            <p class="mt-2 text-xs text-slate-500">Header example: title,author,isbn,category,image_url,is_available</p>
+        </div>
+
+        <button type="submit" class="rounded-lg bg-sky-600/90 px-5 py-2.5 text-sm font-semibold text-white hover:bg-sky-500">
+            Import books
+        </button>
+    </form>
+
+    <section class="mt-8 space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+        <h2 class="text-lg font-semibold text-white">Copy-paste format</h2>
+        <p class="text-sm text-slate-400">Use the exact formats below to add multiple books (URL included).</p>
+
+        <div>
+            <p class="mb-2 text-sm font-semibold text-sky-200">JSON format</p>
+            <pre class="overflow-x-auto rounded-xl border border-white/10 bg-slate-950/60 p-4 text-xs text-slate-200">[
+  {
+    "title": "Atomic Habits",
+    "author": "James Clear",
+    "isbn": "9781847941831",
+    "category": "non-fiction",
+    "image_url": "https://example.com/atomic-habits.jpg",
+    "is_available": true
+  },
+  {
+    "title": "Clean Code",
+    "author": "Robert C. Martin",
+    "isbn": "9780132350884",
+    "category": "tech",
+    "image_url": "https://example.com/clean-code.jpg",
+    "is_available": true
+  }
+]</pre>
+        </div>
+
+        <div>
+            <p class="mb-2 text-sm font-semibold text-sky-200">CSV format</p>
+            <pre class="overflow-x-auto rounded-xl border border-white/10 bg-slate-950/60 p-4 text-xs text-slate-200">title,author,isbn,category,image_url,is_available
+Atomic Habits,James Clear,9781847941831,non-fiction,https://example.com/atomic-habits.jpg,true
+Clean Code,Robert C. Martin,9780132350884,tech,https://example.com/clean-code.jpg,true</pre>
+        </div>
+
+        <div class="rounded-lg border border-white/10 bg-white/[0.03] p-3 text-xs text-slate-300">
+            Required fields: <span class="font-semibold text-white">title, author</span> |
+            Optional fields: isbn, category, image_url, is_available
+        </div>
+        <p class="text-xs text-slate-500">Category is open text. You can use any new category name (for example: philosophy, poetry, business).</p>
+    </section>
+</main>
+{% endblock %}

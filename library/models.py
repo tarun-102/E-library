@@ -6,15 +6,6 @@ from django.utils import timezone
 
 
 class Book(models.Model):
-    class Category(models.TextChoices):
-        FICTION = "fiction", "Fiction"
-        TECH = "tech", "Tech"
-        SCI_FI = "sci-fi", "Sci-Fi"
-        NON_FICTION = "non-fiction", "Non-Fiction"
-        BIOGRAPHY = "biography", "Biography"
-        HISTORY = "history", "History"
-        OTHER = "other", "Other"
-
     title = models.CharField(max_length=255)
     author = models.CharField(max_length=255)
     isbn = models.CharField(
@@ -23,11 +14,8 @@ class Book(models.Model):
         default="",
         help_text="International Standard Book Number (optional).",
     )
-    category = models.CharField(
-        max_length=32,
-        choices=Category.choices,
-        default=Category.FICTION,
-    )
+    # Free-text category so new categories can be added on the fly.
+    category = models.CharField(max_length=64, default="fiction")
     image = models.ImageField(
         upload_to="book_covers/",
         blank=True,

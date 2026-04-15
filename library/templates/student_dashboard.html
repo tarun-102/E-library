@@ -19,7 +19,9 @@
                 <tbody class="divide-y divide-white/5 text-slate-200">
                     {% for row in loans %}
                     <tr class="hover:bg-white/[0.03]">
-                        <td class="px-5 py-4 font-medium text-white">{{ row.book.title }}</td>
+                        <td class="px-5 py-4 font-medium text-white">
+                            <a href="{% url 'book_detail' row.book.pk %}" class="hover:text-sky-200">{{ row.book.title }}</a>
+                        </td>
                         <td class="px-5 py-4 text-slate-400">{{ row.issue_date }}</td>
                         <td class="px-5 py-4 text-slate-400">{{ row.return_date }}</td>
                         <td class="px-5 py-4">

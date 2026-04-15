@@ -1,3 +1,7 @@
+import csv
+import io
+import json
+
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -6,7 +10,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import RegisterForm
+from .forms import BulkBookUploadForm, RegisterForm
 from .models import Book, IssuedBook
 
 
@@ -15,6 +19,36 @@ def _active_loan_book_ids():
         IssuedBook.objects.filter(
             status__in=(IssuedBook.Status.PENDING, IssuedBook.Status.APPROVED),
         ).values_list("book_id", flat=True)
+    )
+
+
+def _parse_bool(value):
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return True
+    text = str(value).strip().lower()
+    return text not in {"0", "false", "no", "n"}
+
+
+def _normalize_category(value):
+    if not value:
+        return "fiction"
+    return str(value).strip().lower()
+
+
+def _build_book(row):
+    title = str(row.get("title", "")).strip()
+    author = str(row.get("author", "")).strip()
+    if not title or not author:
+        raise ValueError("Each row needs title and author.")
+    return Book(
+        title=title,
+        author=author,
+        isbn=str(row.get("isbn", "")).strip(),
+        category=_normalize_category(row.get("category")),
+        image_url=str(row.get("image_url", "")).strip(),
+        is_available=_parse_bool(row.get("is_available", True)),
     )
 
 
@@ -38,6 +72,37 @@ def home(request):
             "q": q,
             "available_only": available_only,
             "blocked_book_ids": blocked_ids,
+        },
+    )
+
+
+def book_detail(request, pk):
+    book = Book.objects.filter(pk=pk).first()
+    if not book:
+        messages.warning(
+            request,
+            "This book is no longer available in the catalog.",
+        )
+        return redirect("home")
+    active_loan = (
+        IssuedBook.objects.filter(book=book, status=IssuedBook.Status.APPROVED)
+        .select_related("user")
+        .first()
+    )
+    pending_count = IssuedBook.objects.filter(book=book, status=IssuedBook.Status.PENDING).count()
+    can_borrow = (
+        request.user.is_authenticated
+        and book.is_available
+        and book.id not in _active_loan_book_ids()
+    )
+    return render(
+        request,
+        "book_detail.html",
+        {
+            "book": book,
+            "active_loan": active_loan,
+            "pending_count": pending_count,
+            "can_borrow": can_borrow,
         },
     )
 
@@ -139,11 +204,54 @@ def librarian_dashboard(request):
         .select_related("book", "user")
         .order_by("return_date")
     )
+    stats = {
+        "total_books": Book.objects.count(),
+        "available_books": Book.objects.filter(is_available=True).count(),
+        "pending_requests": pending.count(),
+        "active_loans": active.count(),
+    }
     return render(
         request,
         "librarian_dashboard.html",
-        {"pending": pending, "active": active},
+        {"pending": pending, "active": active, "stats": stats},
     )
+
+
+@user_passes_test(lambda u: u.is_staff)
+def bulk_add_books(request):
+    if request.method == "POST":
+        form = BulkBookUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            books_to_create = []
+            try:
+                if form.cleaned_data.get("json_payload"):
+                    payload = json.loads(form.cleaned_data["json_payload"])
+                    if not isinstance(payload, list):
+                        raise ValueError("JSON must be an array of objects.")
+                    for row in payload:
+                        if not isinstance(row, dict):
+                            raise ValueError("Each JSON item must be an object.")
+                        books_to_create.append(_build_book(row))
+                else:
+                    csv_data = form.cleaned_data["csv_file"].read().decode("utf-8")
+                    reader = csv.DictReader(io.StringIO(csv_data))
+                    for row in reader:
+                        books_to_create.append(_build_book(row))
+            except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as exc:
+                messages.error(request, f"Import failed: {exc}")
+                return render(request, "bulk_add_books.html", {"form": form})
+
+            if not books_to_create:
+                messages.warning(request, "No valid rows found.")
+                return render(request, "bulk_add_books.html", {"form": form})
+
+            Book.objects.bulk_create(books_to_create, batch_size=200)
+            messages.success(request, f"{len(books_to_create)} books added successfully.")
+            return redirect("librarian_dashboard")
+    else:
+        form = BulkBookUploadForm()
+
+    return render(request, "bulk_add_books.html", {"form": form})
 
 
 class StaffLoginView(LoginView):
