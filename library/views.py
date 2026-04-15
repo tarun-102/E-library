@@ -145,10 +145,31 @@ def librarian_dashboard(request):
     if request.method == "POST":
         issued_id = request.POST.get("issued_id")
         action = request.POST.get("action")
-        ib = get_object_or_404(IssuedBook, pk=issued_id)
+        if not issued_id:
+            messages.warning(request, "Missing request ID. Please try again.")
+            return redirect("librarian_dashboard")
+
+        ib = IssuedBook.objects.filter(pk=issued_id).select_related("book", "user").first()
+        if not ib:
+            messages.warning(
+                request,
+                "This request was already processed or removed.",
+            )
+            return redirect("librarian_dashboard")
         if action == "approve":
             with transaction.atomic():
-                ib = IssuedBook.objects.select_for_update().get(pk=issued_id)
+                ib = (
+                    IssuedBook.objects.select_for_update()
+                    .select_related("book", "user")
+                    .filter(pk=issued_id)
+                    .first()
+                )
+                if not ib:
+                    messages.warning(
+                        request,
+                        "This request was already processed or removed.",
+                    )
+                    return redirect("librarian_dashboard")
                 if ib.status != IssuedBook.Status.PENDING:
                     messages.warning(request, "That request is no longer pending.")
                     return redirect("librarian_dashboard")
